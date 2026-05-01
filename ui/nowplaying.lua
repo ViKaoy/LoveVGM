@@ -51,8 +51,8 @@ function nowplaying.draw(player, active_path, W)
 		love.graphics.print(track, bx + PAD + np_w + 12, fy)
 
 		local badge, br, bg2, bb
-		if     inf.seeking then badge = "⏩ SEEKING..."; br, bg2, bb = 0.45, 0.75, 0.95
-		elseif inf.paused  then badge = "⏸ PAUSED";     br, bg2, bb = 0.90, 0.75, 0.25 end
+		if     inf.seeking then badge = "SEEKING..."; br, bg2, bb = 0.45, 0.75, 0.95
+		elseif inf.paused  then badge = "PAUSED";     br, bg2, bb = 0.90, 0.75, 0.25 end
 
 		if badge then
 			love.graphics.setColor(br, bg2, bb)
