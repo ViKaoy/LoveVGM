@@ -93,9 +93,9 @@ end
 function love.load()
 	love.window.setTitle("VGM Player")
 	love.window.setMode(1280, 680, { resizable = true, msaa = 4 })
-	fonts.sm = love.graphics.newFont("font.ttf", 11, "light")
-	fonts.md = love.graphics.newFont("font.ttf", 14, "light")
-	fonts.lg = love.graphics.newFont("font.ttf", 21, "light")
+	fonts.sm = love.graphics.newFont(11, "light")
+	fonts.md = love.graphics.newFont(14, "light")
+	fonts.lg = love.graphics.newFont(21, "light")
 	for _, f in pairs(fonts) do f:setFilter("nearest", "nearest") end
 	love.graphics.setFont(fonts.md)
 	ui.init(fonts, SAMPLE_RATE)
