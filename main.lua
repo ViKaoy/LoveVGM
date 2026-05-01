@@ -92,7 +92,7 @@ end
 
 function love.load()
 	love.window.setTitle("VGM Player")
-	love.window.setMode(1280, 680, { resizable = true, msaa = 4 })
+	love.window.setMode(1280, 680, { minwidth = 600, minheight = 300, resizable = true })
 	fonts.sm = love.graphics.newFont(11, "light")
 	fonts.md = love.graphics.newFont(14, "light")
 	fonts.lg = love.graphics.newFont(21, "light")
