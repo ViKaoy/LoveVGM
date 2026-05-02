@@ -6,7 +6,7 @@ VGM is a format that logs register writes to real sound chips, so playing it bac
 
 ## Running it
 
-You need Löve2D, that's it
+You need Löve2D, that's it. Version 11.5 or the upcoming 12 is recommended. Not tested on older versions
 
 To browse files, make a `files/` folder in the project directory and put your VGMs in there. It'll show up as a sidebar on the left when you launch. You can also just drag and drop a file onto the window
 
