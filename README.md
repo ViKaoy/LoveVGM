@@ -18,7 +18,7 @@ If you want VGM files to try, [VGMRips](https://vgmrips.net/) has a large archiv
 
 The `vgm/` folder is the actual point of this project, for usage in any project you want. main.lua, and all the ui system is extra bits of this project, and while it works fine, the code is horrendous. And I'm not focusing on making it better
 
-Contributions to add new chips are welcome! You can **check the Wiki page** for documentation
+Contributions to add new chips are welcome! [Check the wiki for documentation](https://github.com/ViKaoy/LoveVGM/wiki) 
 
-## License
-Apache 2.0
+## 
+Licensed under Apache 2.0
