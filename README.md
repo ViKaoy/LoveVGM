@@ -1,6 +1,6 @@
 # LoveVGM
 
-A VGM player for [Löve2D](https://love2d.org/) written in pure Lua. No external dependencies
+A VGM player for [Löve2D](https://love2d.org/)
 
 VGM is a format that logs register writes to real sound chips, so playing it back means actually emulating the hardware rather than just decoding audio. This only covers the Sega side of things — Genesis, Master System, 32X, Mega CD — and I, currently,  do not plan to add other systems. Both `.vgm` and `.vgz` (GZip compressed vgm) files work
 
