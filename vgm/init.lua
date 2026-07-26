@@ -1,7 +1,10 @@
 local bit = require("bit")
 local Parser = require("vgm.parser")
 
-local Player = {}
+local Player = {
+	version = "1.0"
+}
+
 Player.__index = Player
 
 local SAMPLE_RATE  = 44100

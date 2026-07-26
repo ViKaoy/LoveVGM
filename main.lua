@@ -1,4 +1,4 @@
-local Player = require("vgm.player")
+local VgmPlayer = require("vgm")
 local ui     = require("ui")
 
 local player    = nil
@@ -27,7 +27,7 @@ end
 local function load_vgm_from_string(data, label)
 	err_msg = nil
 	local ok, result = pcall(function()
-		return Player.new(decompress_if_vgz(data))
+		return VgmPlayer.new(decompress_if_vgz(data))
 	end)
 	if ok then
 		if player then
