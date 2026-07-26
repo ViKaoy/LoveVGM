@@ -166,18 +166,26 @@ function Registry:reset_chips()
 	self:_build_cbs()
 end
 
+local function _wave_source(chip)
+	local wf = chip.wf
+	if wf then
+		return wf.bufs, wf.labels, wf.pos
+	end
+end
+
 function Registry:waveform_snapshot()
 	local snap = {}
 	for _, entry in ipairs(self._render_list) do
 		local chip = entry.chip
-		if chip.wave_bufs and chip.wave_labels then
+		local bufs_src, labels, pos = _wave_source(chip)
+		if bufs_src then
 			local active = true
 			if entry.wave_active then
 				active = entry.wave_active(chip)
 			end
 			if active then
 				local bufs = {}
-				for i, src in ipairs(chip.wave_bufs) do
+				for i, src in ipairs(bufs_src) do
 					local dst = {}
 					for j = 1, #src do dst[j] = src[j] end
 					bufs[i] = dst
@@ -186,8 +194,8 @@ function Registry:waveform_snapshot()
 					id       = entry.id,
 					label    = entry.id,
 					bufs     = bufs,
-					wave_pos = chip.wave_pos or 0,
-					labels   = chip.wave_labels,
+					wave_pos = pos,
+					labels   = labels,
 				}
 				if entry.wave_extra then
 					local extra = entry.wave_extra(chip)

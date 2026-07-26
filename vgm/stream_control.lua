@@ -10,6 +10,7 @@
 
 local bit = require("bit")
 local ffi = require("ffi")
+local Waveform = require("vgm.waveform")
 
 local CHIP_ENTRY_BYTES = {
 	[0x11] = 2,
@@ -114,15 +115,7 @@ function StreamControl.new(pwm, opts)
 	self._xL = 0;  self._yL = 0
 	self._xR = 0;  self._yR = 0
 
-	-- waveform ring buffers for L  and R PWM output
-	self.wave_l      = {}
-	self.wave_r      = {}
-	self.wave_pos    = 0
-	self.wave_bufs   = {}
-	self.wave_labels = { "L", "R" }
-	for i = 1, WAVE_SIZE do self.wave_l[i] = 0; self.wave_r[i] = 0 end
-	self.wave_bufs[1] = self.wave_l
-	self.wave_bufs[2] = self.wave_r
+	self.wf = Waveform.new({ "L", "R" })
 
 	return self
 end
@@ -496,10 +489,11 @@ function StreamControl:render(buf, off, n)
 		buf[li]     = sL
 		buf[li + 1] = sR
 
-		local wp = self.wave_pos % WAVE_SIZE + 1
-		self.wave_l[wp] = yL
-		self.wave_r[wp] = yR
-		self.wave_pos = wp
+		if self.wf then
+			self.wf:advance()
+			self.wf:set(1, yL)
+			self.wf:set(2, yR)
+		end
 	end
 end
 

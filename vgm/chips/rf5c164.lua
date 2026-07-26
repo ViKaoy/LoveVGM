@@ -1,11 +1,10 @@
 local ffi = require("ffi")
 local bit = require("bit")
+local Waveform = require("vgm.waveform")
 
 ffi.cdef[[
         typedef uint8_t rf_u8;
 ]]
-
-local WAVE_SIZE = 256
 
 local RF5C164 = {}
 RF5C164.__index = RF5C164
@@ -49,14 +48,7 @@ function RF5C164.new(clock)
 			}
 	end
 
-	self.wave_bufs  = {}
-	self.wave_labels = { "P1","P2","P3","P4","P5","P6","P7","P8" }
-	self.wave_pos   = 0
-	for i = 1, 8 do
-			local t = {}
-			for j = 1, WAVE_SIZE do t[j] = 0 end
-			self.wave_bufs[i] = t
-	end
+	self.wf = Waveform.new({ "P1","P2","P3","P4","P5","P6","P7","P8" })
 	self.ch_out = {}
 	for i = 0, 7 do self.ch_out[i] = 0 end
 
@@ -195,11 +187,12 @@ function RF5C164:render(buf, off, n)
 		buf[li]        = self.out_l
 		buf[li + 1]    = self.out_r
 
-		local wp = self.wave_pos % WAVE_SIZE + 1
-		for i = 0, 7 do
-				self.wave_bufs[i + 1][wp] = self.ch_out[i]
+		if self.wf then
+			self.wf:advance()
+			for i = 0, 7 do
+				self.wf:set(i + 1, self.ch_out[i])
+			end
 		end
-		self.wave_pos = wp
 	end
 end
 

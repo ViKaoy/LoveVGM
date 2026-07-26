@@ -4,14 +4,13 @@
 
 local ffi = require("ffi")
 local bit = require("bit")
+local Waveform = require("vgm.waveform")
 
 ffi.cdef[[
 	typedef struct {
 		uint8_t regs[2][256];
 	} YM2612Regs;
 ]]
-
-local WAVE_SIZE = 256
 
 local YM2612 = {}
 YM2612.__index = YM2612
@@ -427,14 +426,7 @@ function YM2612.new()
 		self.channels[i] = make_channel()
 	end
 
-	self.wave_bufs = {}
-	self.wave_pos  = 0
-	for i = 1, 6 do
-		local t = {}
-		for j = 1, WAVE_SIZE do t[j] = 0 end
-		self.wave_bufs[i] = t
-	end
-	self.wave_labels = { "CH1", "CH2", "CH3", "CH4", "CH5", "CH6" }
+	self.wf = Waveform.new({ "CH1", "CH2", "CH3", "CH4", "CH5", "CH6" })
 
 	return self
 end
@@ -693,7 +685,7 @@ function YM2612:render(buf, off, n)
 
 		local sum_l = 0
 		local sum_r = 0
-		local wave_wp = self.wave_pos % WAVE_SIZE + 1
+		if self.wf then self.wf:advance() end
 
 		for ch_i = 1, 6 do
 			local ch          = self.channels[ch_i]
@@ -755,11 +747,12 @@ function YM2612:render(buf, off, n)
 			sum_l = sum_l + out_l / 8192
 			sum_r = sum_r + out_r / 8192
 
-			local wv = (out_l + out_r) / (2 * 8192)
-			if wv >  1 then wv =  1 elseif wv < -1 then wv = -1 end
-			self.wave_bufs[ch_i][wave_wp] = wv
+			if self.wf then
+				local wv = (out_l + out_r) / (2 * 8192)
+				if wv >  1 then wv =  1 elseif wv < -1 then wv = -1 end
+				self.wf:set(ch_i, wv)
+			end
 		end
-		self.wave_pos = wave_wp
 
 		local s_l = sum_l / 6
 		local s_r = sum_r / 6

@@ -1,5 +1,6 @@
 local bit = require("bit")
 local ffi = require("ffi")
+local Waveform = require("vgm.waveform")
 
 local VOL = ffi.new("uint16_t[16]", {
 	32767, 26028, 20675, 16422, 13045, 10362,  8231,  6568,
@@ -10,7 +11,6 @@ local NOISE_PERIOD = ffi.new("uint8_t[4]", {0x10, 0x20, 0x40, 0})
 local LFSR_INIT   = 0x8000
 local TAPPED_BITS = 0x0009
 
-local WAVE_SIZE  = 256
 local INV_32767  = 1 / 32767
 
 local function parity16(v)
@@ -53,12 +53,7 @@ function SN76489.new(clock, sample_rate)
 
 	self.latch = 0
 
-	self.wave_bufs   = { {}, {}, {}, {} }
-	self.wave_labels = { "T1", "T2", "T3", "Ns" }
-	self.wave_pos    = 0
-	for ch = 1, 4 do
-		for i = 1, WAVE_SIZE do self.wave_bufs[ch][i] = 0 end
-	end
+	self.wf = Waveform.new({ "T1", "T2", "T3", "Ns" })
 
 	return self
 end
@@ -188,12 +183,13 @@ function SN76489:render(buf, off, n)
 		buf[(off + frame) * 2]     = s
 		buf[(off + frame) * 2 + 1] = s
 
-		local wp = self.wave_pos % WAVE_SIZE + 1
-		self.wave_bufs[1][wp] = self.tone[1].output * VOL[self.vol[1]] * INV_32767
-		self.wave_bufs[2][wp] = self.tone[2].output * VOL[self.vol[2]] * INV_32767
-		self.wave_bufs[3][wp] = self.tone[3].output * VOL[self.vol[3]] * INV_32767
-		self.wave_bufs[4][wp] = self.noise_output   * VOL[self.vol[4]] * INV_32767
-		self.wave_pos = wp
+		if self.wf then
+			self.wf:advance()
+			self.wf:set(1, self.tone[1].output * VOL[self.vol[1]] * INV_32767)
+			self.wf:set(2, self.tone[2].output * VOL[self.vol[2]] * INV_32767)
+			self.wf:set(3, self.tone[3].output * VOL[self.vol[3]] * INV_32767)
+			self.wf:set(4, self.noise_output   * VOL[self.vol[4]] * INV_32767)
+		end
 	end
 end
 
