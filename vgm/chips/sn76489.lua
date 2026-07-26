@@ -197,20 +197,17 @@ function SN76489:render(buf, off, n)
 	end
 end
 
-SN76489.descriptor = {
-	id          = "sn76489",
-	clock_field = "sn76489_clock",
-	gain        = 0.15625,
-	new = function(clock, hdr)
-		return SN76489.new(clock)
-	end,
-	commands = {
-		sn76489       = function(chip, reg, val) chip:write(val) end,
-		psg_gg_stereo = function(chip, reg, val) chip:write(val) end,
-	},
-	render = function(chip, buf, off, n)
-		chip:render(buf, off, n)
-	end,
+SN76489.id          = "sn76489"
+SN76489.clock_field = "sn76489_clock"
+SN76489.gain        = 0.15625
+
+function SN76489.create(clock, hdr)
+	return SN76489.new(clock)
+end
+
+SN76489.commands = {
+	sn76489       = function(chip, reg, val) chip:write(val) end,
+	psg_gg_stereo = function(chip, reg, val) chip:write(val) end,
 }
 
 return SN76489

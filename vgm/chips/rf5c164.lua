@@ -203,45 +203,44 @@ function RF5C164:render(buf, off, n)
 	end
 end
 
-RF5C164.descriptor = {
-	id          = "rf5c164",
-	clock_field = "rf5c164_clock",
-	gain        = 0.625,
-	new = function(clock, hdr)
-		return RF5C164.new(clock)
-	end,
-	commands = {
-		rf5c164 = function(chip, reg, val) chip:write_reg(reg, val) end,
-		chip_C1 = function(chip, reg, val) chip:write_ram(reg, val) end,
-	},
-	events = {
-		on_data_block = function(chip, block_type, ptr, len)
-			if block_type == 0x02 then
-				chip:set_pcm_stream(ptr, len)
-			elseif block_type == 0xC1 then
-				if len >= 2 then
-					local start_addr = ptr[0] + ptr[1] * 0x100
-					chip:load_block(start_addr, ptr + 2, len - 2)
-				end
+RF5C164.id          = "rf5c164"
+RF5C164.clock_field = "rf5c164_clock"
+RF5C164.gain        = 0.625
+
+function RF5C164.create(clock, hdr)
+	return RF5C164.new(clock)
+end
+
+RF5C164.commands = {
+	rf5c164 = function(chip, reg, val) chip:write_reg(reg, val) end,
+	chip_C1 = function(chip, reg, val) chip:write_ram(reg, val) end,
+}
+
+RF5C164.events = {
+	on_data_block = function(chip, block_type, ptr, len)
+		if block_type == 0x02 then
+			chip:set_pcm_stream(ptr, len)
+		elseif block_type == 0xC1 then
+			if len >= 2 then
+				local start_addr = ptr[0] + ptr[1] * 0x100
+				chip:load_block(start_addr, ptr + 2, len - 2)
 			end
-		end,
-		on_pcm_ram_write = function(chip, chip_type, read_off, write_off, size)
-			if chip_type == 0x02 then
-				chip:copy_from_stream(read_off, write_off, size)
-			end
-		end,
-	},
-	render = function(chip, buf, off, n)
-		chip:render(buf, off, n)
-	end,
-	wave_extra = function(chip)
-		local bit = require("bit")
-		local active = {}
-		for i = 0, 7 do
-			active[i + 1] = bit.band(chip.channel_enable, bit.lshift(1, i)) == 0
 		end
-		return { active = active }
+	end,
+	on_pcm_ram_write = function(chip, chip_type, read_off, write_off, size)
+		if chip_type == 0x02 then
+			chip:copy_from_stream(read_off, write_off, size)
+		end
 	end,
 }
+
+function RF5C164.wave_extra(chip)
+	local bit = require("bit")
+	local active = {}
+	for i = 0, 7 do
+		active[i + 1] = bit.band(chip.channel_enable, bit.lshift(1, i)) == 0
+	end
+	return { active = active }
+end
 
 return RF5C164

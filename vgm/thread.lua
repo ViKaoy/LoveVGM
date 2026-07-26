@@ -65,9 +65,7 @@ end
 local function mix(buf_pos, n)
 	if n <= 0 then return end
 	for _, entry in ipairs(render_list) do
-		if entry.render then
-			entry.render(entry.chip, chip_bufs[entry.id], buf_pos, n)
-		end
+		entry.chip:render(chip_bufs[entry.id], buf_pos, n)
 	end
 	for i = 0, n - 1 do
 		local li = (buf_pos + i) * 2

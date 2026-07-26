@@ -9,7 +9,7 @@ local CHIP_MODULES = {
 }
 
 local function _register_chip(self, desc, clock, hdr)
-	local instance = desc.new(clock, hdr)
+	local instance = desc.create(clock, hdr)
 	self._chips[desc.id] = instance
 
 	if desc.commands then
@@ -37,7 +37,6 @@ local function _register_chip(self, desc, clock, hdr)
 		id          = desc.id,
 		chip        = instance,
 		gain        = desc.gain or 1.0,
-		render      = desc.render,
 		wave_active = desc.wave_active,
 		wave_extra  = desc.wave_extra,
 		desc        = desc,
@@ -55,8 +54,8 @@ function Registry.new(hdr)
 
 	for _, path in ipairs(CHIP_MODULES) do
 		local ok, mod = pcall(require, path)
-		if ok and mod and mod.descriptor then
-			local desc   = mod.descriptor
+		if ok and mod and mod.create then
+			local desc   = mod
 			local clock  = 0
 			local active = true
 			if desc.clock_field then
@@ -129,7 +128,7 @@ function Registry:reset_chips()
 	for _, old in ipairs(self._render_list) do
 		local desc  = old.desc
 		local clock = desc.clock_field and (hdr[desc.clock_field] or 0) or 0
-		local instance = desc.new(clock, hdr)
+		local instance = desc.create(clock, hdr)
 		self._chips[desc.id] = instance
 
 		if desc.commands then
@@ -157,7 +156,6 @@ function Registry:reset_chips()
 			id          = desc.id,
 			chip        = instance,
 			gain        = desc.gain or 1.0,
-			render      = desc.render,
 			wave_active = desc.wave_active,
 			wave_extra  = desc.wave_extra,
 			desc        = desc,

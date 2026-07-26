@@ -772,36 +772,35 @@ function YM2612:render(buf, off, n)
 	end
 end
 
-YM2612.descriptor = {
-	id          = "ym2612",
-	clock_field = "ym2612_clock",
-	gain        = 1.0,
-	new = function(clock, hdr)
-		return YM2612.new()
+YM2612.id          = "ym2612"
+YM2612.clock_field = "ym2612_clock"
+YM2612.gain        = 1.0
+
+function YM2612.create(clock, hdr)
+	return YM2612.new()
+end
+
+YM2612.commands = {
+	ym2612_p0 = function(chip, reg, val) chip:write(0, reg, val) end,
+	ym2612_p1 = function(chip, reg, val) chip:write(1, reg, val) end,
+}
+
+YM2612.events = {
+	on_data_block = function(chip, block_type, ptr, len)
+		if block_type == 0x00 then
+			chip:set_pcm_bank(ptr, len)
+		end
 	end,
-	commands = {
-		ym2612_p0 = function(chip, reg, val) chip:write(0, reg, val) end,
-		ym2612_p1 = function(chip, reg, val) chip:write(1, reg, val) end,
-	},
-	events = {
-		on_data_block = function(chip, block_type, ptr, len)
-			if block_type == 0x00 then
-				chip:set_pcm_bank(ptr, len)
-			end
-		end,
-		on_dac_bank_write = function(chip, wait_n)
-			chip.dac_sample = chip:pcm_next()
-		end,
-		on_seek = function(chip, offset)
-			chip:pcm_seek(offset)
-		end,
-	},
-	render = function(chip, buf, off, n)
-		chip:render(buf, off, n)
+	on_dac_bank_write = function(chip, wait_n)
+		chip.dac_sample = chip:pcm_next()
 	end,
-	wave_extra = function(chip)
-		return { dac_ch = chip.dac_enabled and 6 or nil }
+	on_seek = function(chip, offset)
+		chip:pcm_seek(offset)
 	end,
 }
+
+function YM2612.wave_extra(chip)
+	return { dac_ch = chip.dac_enabled and 6 or nil }
+end
 
 return YM2612
